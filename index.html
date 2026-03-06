@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRIP Track</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .timeline-line {
+            position: absolute;
+            left: 19px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #cbd5e1; /* Slate color */
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-blue-600 text-white p-4 shadow-lg sticky top-0 z-50">
+        <h1 class="text-xl font-bold text-center">TRIP TRACK 📍</h1>
+    </header>
+
+    <main class="max-w-md mx-auto p-4">
+        <div class="mb-6 bg-white p-4 rounded-lg shadow">
+            <input type="text" id="tripName" placeholder="Enter Trip Name (e.g. Chennai Trip)" 
+                   class="w-full border-b-2 border-blue-400 p-2 outline-none text-lg font-semibold">
+            <p class="text-sm text-gray-500 mt-2">Date: 📅 <span id="currentDate"></span></p>
+        </div>
+
+        <div class="relative">
+            <div class="timeline-line" id="line"></div>
+            <div id="locationList" class="space-y-8 relative z-10">
+                </div>
+        </div>
+
+        <button onclick="recordLocation()" 
+                class="fixed bottom-8 right-8 bg-green-500 text-white p-4 rounded-full shadow-2xl hover:bg-green-600 transition-all font-bold">
+            Record My Location
+        </button>
+    </main>
+
+    <script>
+        // Set Today's Date
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
+
+        function recordLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    addLocationToUI(time, "Fetching Location..."); // Idhar Reverse Geocoding API lag sakti hai
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function addLocationToUI(time, locName) {
+            const list = document.getElementById('locationList');
+            const entry = document.createElement('div');
+            entry.className = "flex items-center gap-4";
+            entry.innerHTML = `
+                <div class="w-10 h-10 bg-blue-500 rounded-full border-4 border-white shadow flex-shrink-0"></div>
+                <div class="bg-white p-3 rounded-lg shadow-sm flex-grow">
+                    <span class="text-xs font-bold text-gray-400">${time}</span>
+                    <p class="text-gray-800 font-medium ml-2">📍 ${locName}</p>
+                </div>
+            `;
+            list.appendChild(entry);
+        }
+
+        // --- Notification Logic ---
+        function setupReminder() {
+            // Har 30 mins (30 * 60 * 1000 ms) me check karega
+            setInterval(() => {
+                if (confirm("Are you Ready To Post Your Location? 📍")) {
+                    recordLocation();
+                }
+            }, 1800000); 
+        }
+        
+        setupReminder();
+    </script>
+</body>
+</html>
